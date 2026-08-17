@@ -6,6 +6,12 @@
  * grams (best-estimate gram weight of THIS quantity, used only for macro calculation).
  * qty/unit scale with servings and convert between metric/imperial for display;
  * grams is used purely for nutrition math and is scaled by the same serving multiplier.
+ *
+ * Recipes that yield discrete items (buns, patties, wraps) may also carry:
+ *   itemUnit: singular label shown in the UI, e.g. "bun"
+ *   itemWeightG: the recipe's default weight per item in grams
+ * When present, the site shows a separate "item size" control that rescales
+ * everything by (targetWeight / itemWeightG), independent of the servings count.
  */
 
 const RECIPES = [
@@ -238,6 +244,8 @@ const RECIPES = [
   category: "bread",
   tags: ["bread", "yeasted"],
   servings: 6,
+  itemUnit: "wrap",
+  itemWeightG: 121,
   prepTime: "15 min + ~1h proof",
   cookTime: "~2 min per wrap",
   notes: [],
@@ -269,11 +277,11 @@ const RECIPES = [
   category: "bread",
   tags: ["bread", "yeasted"],
   servings: 6,
+  itemUnit: "bun",
+  itemWeightG: 90,
   prepTime: "20 min",
   cookTime: "15-17 min + 1h40 rise",
-  notes: [
-    "Makes bigger buns: for ~118g buns ('The Perfect \"Just Bigger\" Burger Buns' variant), scale to 400g flour, 7g yeast, 240ml soya milk, 35ml vegetable oil, 20g sugar, 7g salt — same method, still makes 6 buns."
-  ],
+  notes: [],
   ingredients: [
     { name: "plain flour", qty: 300, unit: "g", displayText: "all-purpose flour, ~9.7% protein, 300g", grams: 300 },
     { name: "yeast", qty: 6, unit: "g", displayText: "active dry yeast, 6g", grams: 6 },
@@ -303,6 +311,8 @@ const RECIPES = [
   category: "bread",
   tags: ["bread", "no-yeast"],
   servings: 7,
+  itemUnit: "naan",
+  itemWeightG: 80,
   prepTime: "15 min + 30-60 min rest",
   cookTime: "10-15 min",
   notes: [],
@@ -335,6 +345,8 @@ const RECIPES = [
   category: "bread",
   tags: ["bread", "yeasted"],
   servings: 6,
+  itemUnit: "bun",
+  itemWeightG: 110,
   prepTime: "20 min",
   cookTime: "17-20 min + ~1h50 rise",
   notes: ["Water-based version — paler crust and slightly chewier crumb than the soya milk version; use the optional sugar wash for better colour."],
@@ -452,6 +464,8 @@ const RECIPES = [
   category: "protein",
   tags: ["high-protein", "burger"],
   servings: 9,
+  itemUnit: "patty",
+  itemWeightG: 214,
   prepTime: "30 min",
   cookTime: "8-10 min per batch + 90+ min chill",
   notes: ["Yields 8-10 substantial patties."],

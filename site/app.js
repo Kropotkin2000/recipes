@@ -15,8 +15,15 @@
     category: "all",
     tags: new Set(),
     unit: "metric",
-    servingOverrides: {} // recipeId -> servings number
+    servingOverrides: {}, // recipeId -> servings number
+    sizeOverrides: {} // recipeId -> target item weight in grams (only for recipes with itemWeightG)
   };
+
+  function getMultiplier(r, servings, itemWeight) {
+    var m = servings / r.servings;
+    if (r.itemWeightG) m *= (itemWeight || r.itemWeightG) / r.itemWeightG;
+    return m;
+  }
 
   var els = {};
 
@@ -162,8 +169,8 @@
 
   // ---------- nutrition math ----------
 
-  function computeMacros(recipe, servings) {
-    var multiplier = servings / recipe.servings;
+  function computeMacros(recipe, servings, itemWeight) {
+    var multiplier = getMultiplier(recipe, servings, itemWeight);
     var totals = { kcal: 0, protein: 0, carbs: 0, fat: 0 };
     recipe.ingredients.forEach(function (ing) {
       var info = NUTRITION[ing.name];
@@ -247,7 +254,8 @@
 
     list.forEach(function (r) {
       var servings = state.servingOverrides[r.id] || r.servings;
-      var macros = computeMacros(r, servings);
+      var itemWeight = state.sizeOverrides[r.id] || r.itemWeightG;
+      var macros = computeMacros(r, servings, itemWeight);
       var perServing = { kcal: macros.kcal / servings, protein: macros.protein / servings, carbs: macros.carbs / servings, fat: macros.fat / servings };
       var meta = CATEGORY_META[r.category] || { icon: "🍴", label: r.category, color: "var(--accent)" };
 
@@ -266,7 +274,8 @@
         '<div class="card-meta">' +
           '<span>⏱ ' + escapeHtml(r.prepTime || "") + '</span>' +
           '<span>🔥 ' + escapeHtml(r.cookTime || "") + '</span>' +
-          '<span>🍽 ' + servings + ' serving' + (servings === 1 ? "" : "s") + '</span>' +
+          '<span>🍽 ' + servings + (r.itemUnit ? " " + r.itemUnit + (servings === 1 ? "" : "s") : (" serving" + (servings === 1 ? "" : "s"))) + '</span>' +
+          (r.itemUnit ? '<span>⚖ ' + itemWeight + 'g / ' + r.itemUnit + '</span>' : '') +
         '</div>' +
         '<div class="card-macros">' +
           macroBox(roundInt(perServing.kcal), "kcal") +
@@ -302,7 +311,8 @@
     if (!r) return;
     currentOpenId = id;
     var servings = state.servingOverrides[id] || r.servings;
-    renderModal(r, servings);
+    var itemWeight = state.sizeOverrides[id] || r.itemWeightG;
+    renderModal(r, servings, itemWeight);
     els.modalOverlay.classList.remove("hidden");
   }
 
@@ -311,10 +321,11 @@
     currentOpenId = null;
   }
 
-  function renderModal(r, servings) {
+  function renderModal(r, servings, itemWeight) {
     var meta = CATEGORY_META[r.category] || { icon: "🍴", label: r.category, color: "var(--accent)" };
-    var multiplier = servings / r.servings;
-    var macros = computeMacros(r, servings);
+    itemWeight = itemWeight || r.itemWeightG;
+    var multiplier = getMultiplier(r, servings, itemWeight);
+    var macros = computeMacros(r, servings, itemWeight);
     var perServing = { kcal: macros.kcal / servings, protein: macros.protein / servings, carbs: macros.carbs / servings, fat: macros.fat / servings };
 
     var notesHtml = "";
@@ -347,7 +358,7 @@
       '<div class="modal-body">' +
         notesHtml +
         '<div class="serving-control">' +
-          '<label for="servingInput">Servings</label>' +
+          '<label for="servingInput">' + (r.itemUnit ? ("Number of " + r.itemUnit + "s") : "Servings") + '</label>' +
           '<div class="stepper">' +
             '<button id="servDown" type="button">−</button>' +
             '<input id="servingInput" type="number" min="1" step="1" value="' + servings + '">' +
@@ -355,6 +366,17 @@
           '</div>' +
           '<span style="color:var(--text-muted);font-size:0.8rem;">(recipe default: ' + r.servings + ')</span>' +
         '</div>' +
+        (r.itemUnit ?
+          '<div class="serving-control">' +
+            '<label for="sizeInput">' + escapeHtml(r.itemUnit.charAt(0).toUpperCase() + r.itemUnit.slice(1)) + ' size (g)</label>' +
+            '<div class="stepper">' +
+              '<button id="sizeDown" type="button">−</button>' +
+              '<input id="sizeInput" type="number" min="1" step="5" value="' + itemWeight + '">' +
+              '<button id="sizeUp" type="button">+</button>' +
+            '</div>' +
+            '<span style="color:var(--text-muted);font-size:0.8rem;">(recipe default: ' + r.itemWeightG + 'g)</span>' +
+          '</div>'
+        : '') +
         '<div class="macro-summary">' +
           macroCard(roundInt(perServing.kcal), "kcal / serving") +
           macroCard(round1(perServing.protein) + "g", "protein / serving") +
@@ -389,6 +411,24 @@
       var v = Math.max(1, parseFloat(input.value) || r.servings);
       updateServings(r, v);
     });
+
+    if (r.itemUnit) {
+      var sizeInput = els.modal.querySelector("#sizeInput");
+      els.modal.querySelector("#sizeDown").addEventListener("click", function () {
+        var v = Math.max(1, (parseFloat(sizeInput.value) || r.itemWeightG) - 5);
+        sizeInput.value = v;
+        updateItemSize(r, v);
+      });
+      els.modal.querySelector("#sizeUp").addEventListener("click", function () {
+        var v = Math.max(1, (parseFloat(sizeInput.value) || r.itemWeightG) + 5);
+        sizeInput.value = v;
+        updateItemSize(r, v);
+      });
+      sizeInput.addEventListener("change", function () {
+        var v = Math.max(1, parseFloat(sizeInput.value) || r.itemWeightG);
+        updateItemSize(r, v);
+      });
+    }
   }
 
   function shortName(ing) {
@@ -402,7 +442,13 @@
 
   function updateServings(r, v) {
     state.servingOverrides[r.id] = v;
-    renderModal(r, v);
+    renderModal(r, v, state.sizeOverrides[r.id] || r.itemWeightG);
+    render();
+  }
+
+  function updateItemSize(r, v) {
+    state.sizeOverrides[r.id] = v;
+    renderModal(r, state.servingOverrides[r.id] || r.servings, v);
     render();
   }
 
