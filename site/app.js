@@ -37,6 +37,15 @@
     buildCategoryOptions();
     buildTagChips();
     bindGlobalEvents();
+
+    // Guard against browsers restoring stale form values on reload/bfcache,
+    // which would leave the visible controls out of sync with fresh state.
+    els.search.value = "";
+    els.category.value = "all";
+    state.search = "";
+    state.category = "all";
+    state.tags.clear();
+    els.tagChips.querySelectorAll(".chip.active").forEach(function (c) { c.classList.remove("active"); });
     applyStoredTheme();
     render();
   }
@@ -103,6 +112,18 @@
     els.modalOverlay.addEventListener("click", function (e) {
       if (e.target === els.modalOverlay) closeModal();
     });
+    var clearBtn = document.getElementById("clearFiltersBtn");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", function () {
+        state.search = "";
+        state.category = "all";
+        state.tags.clear();
+        els.search.value = "";
+        els.category.value = "all";
+        els.tagChips.querySelectorAll(".chip.active").forEach(function (c) { c.classList.remove("active"); });
+        render();
+      });
+    }
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") closeModal();
     });
