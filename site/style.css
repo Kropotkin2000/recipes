@@ -335,7 +335,7 @@ body {
   z-index: 100;
   overflow-y: auto;
 }
-.modal-overlay.hidden { display: none; }
+.hidden { display: none !important; }
 
 .modal {
   background: var(--bg-elevated);
