@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vegan Recipe Box</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-row">
+    <div>
+      <h1>Vegan Recipe Box</h1>
+      <p class="subtitle">Browse, scale, and convert units for your saved recipes.</p>
+    </div>
+    <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+      <div class="unit-toggle" id="unitToggle">
+        <button type="button" data-unit="metric" class="active">Metric</button>
+        <button type="button" data-unit="imperial">Imperial</button>
+      </div>
+      <div class="theme-toggle" id="themeToggle">
+        <button type="button" data-theme="light">Light</button>
+        <button type="button" data-theme="system" class="active">Auto</button>
+        <button type="button" data-theme="dark">Dark</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="search-row">
+    <input type="search" id="searchInput" class="search-input" placeholder="Search recipes or ingredients…">
+    <select id="categorySelect" class="category-select"></select>
+  </div>
+  <div class="tag-chips" id="tagChips"></div>
+</div>
+
+<p class="results-count" id="resultsCount"></p>
+
+<main class="recipe-grid" id="recipeGrid"></main>
+
+<div class="empty-state hidden" id="emptyState">No recipes match your filters. Try clearing search or tags.</div>
+
+<p class="disclaimer">
+  Nutrition figures are rough estimates from typical/generic ingredient values, not a verified nutrition label —
+  use for general guidance only. Ingredient gram weights for odd measures ("pinch", "to taste", "heaped chef's spoon")
+  are approximated and may not scale perfectly.
+</p>
+
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+</div>
+
+<script src="data/recipes.js"></script>
+<script src="data/nutrition.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
