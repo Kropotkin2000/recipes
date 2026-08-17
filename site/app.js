@@ -275,7 +275,7 @@
           '<span>⏱ ' + escapeHtml(r.prepTime || "") + '</span>' +
           '<span>🔥 ' + escapeHtml(r.cookTime || "") + '</span>' +
           '<span>🍽 ' + servings + (r.itemUnit ? " " + r.itemUnit + (servings === 1 ? "" : "s") : (" serving" + (servings === 1 ? "" : "s"))) + '</span>' +
-          (r.itemUnit ? '<span>⚖ ' + itemWeight + 'g / ' + r.itemUnit + '</span>' : '') +
+          (r.itemUnit ? '<span>⚖ ' + (state.unit === "imperial" ? round1(itemWeight / 28.35) + "oz" : itemWeight + "g") + ' / ' + r.itemUnit + '</span>' : '') +
         '</div>' +
         '<div class="card-macros">' +
           macroBox(roundInt(perServing.kcal), "kcal") +
@@ -367,15 +367,24 @@
           '<span style="color:var(--text-muted);font-size:0.8rem;">(recipe default: ' + r.servings + ')</span>' +
         '</div>' +
         (r.itemUnit ?
-          '<div class="serving-control">' +
-            '<label for="sizeInput">' + escapeHtml(r.itemUnit.charAt(0).toUpperCase() + r.itemUnit.slice(1)) + ' size (g)</label>' +
-            '<div class="stepper">' +
-              '<button id="sizeDown" type="button">−</button>' +
-              '<input id="sizeInput" type="number" min="1" step="5" value="' + itemWeight + '">' +
-              '<button id="sizeUp" type="button">+</button>' +
-            '</div>' +
-            '<span style="color:var(--text-muted);font-size:0.8rem;">(recipe default: ' + r.itemWeightG + 'g)</span>' +
-          '</div>'
+          (function () {
+            var isImperial = state.unit === "imperial";
+            var sizeUnitLabel = isImperial ? "oz" : "g";
+            var displayVal = isImperial ? round1(itemWeight / 28.35) : itemWeight;
+            var defaultVal = isImperial ? round1(r.itemWeightG / 28.35) : r.itemWeightG;
+            var stepVal = isImperial ? 0.5 : 5;
+            return (
+              '<div class="serving-control">' +
+                '<label for="sizeInput">' + escapeHtml(r.itemUnit.charAt(0).toUpperCase() + r.itemUnit.slice(1)) + ' size (' + sizeUnitLabel + ')</label>' +
+                '<div class="stepper">' +
+                  '<button id="sizeDown" type="button">−</button>' +
+                  '<input id="sizeInput" type="number" min="0.1" step="' + stepVal + '" value="' + displayVal + '">' +
+                  '<button id="sizeUp" type="button">+</button>' +
+                '</div>' +
+                '<span style="color:var(--text-muted);font-size:0.8rem;">(recipe default: ' + defaultVal + sizeUnitLabel + ')</span>' +
+              '</div>'
+            );
+          })()
         : '') +
         '<div class="macro-summary">' +
           macroCard(roundInt(perServing.kcal), "kcal / serving") +
@@ -413,20 +422,24 @@
     });
 
     if (r.itemUnit) {
+      var isImperial = state.unit === "imperial";
+      var stepVal = isImperial ? 0.5 : 5;
+      var toGrams = function (v) { return isImperial ? v * 28.35 : v; };
+      var defaultDisplay = isImperial ? round1(r.itemWeightG / 28.35) : r.itemWeightG;
       var sizeInput = els.modal.querySelector("#sizeInput");
       els.modal.querySelector("#sizeDown").addEventListener("click", function () {
-        var v = Math.max(1, (parseFloat(sizeInput.value) || r.itemWeightG) - 5);
+        var v = Math.max(0.1, (parseFloat(sizeInput.value) || defaultDisplay) - stepVal);
         sizeInput.value = v;
-        updateItemSize(r, v);
+        updateItemSize(r, toGrams(v));
       });
       els.modal.querySelector("#sizeUp").addEventListener("click", function () {
-        var v = Math.max(1, (parseFloat(sizeInput.value) || r.itemWeightG) + 5);
+        var v = Math.max(0.1, (parseFloat(sizeInput.value) || defaultDisplay) + stepVal);
         sizeInput.value = v;
-        updateItemSize(r, v);
+        updateItemSize(r, toGrams(v));
       });
       sizeInput.addEventListener("change", function () {
-        var v = Math.max(1, parseFloat(sizeInput.value) || r.itemWeightG);
-        updateItemSize(r, v);
+        var v = Math.max(0.1, parseFloat(sizeInput.value) || defaultDisplay);
+        updateItemSize(r, toGrams(v));
       });
     }
   }
