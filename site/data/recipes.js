@@ -299,7 +299,7 @@ const RECIPES = [
 ,// ---------------------------------------------------------------------
 {
   id: "vegan-naan",
-  title: "Vegan Naan (No Yeast)",
+  title: "Vegan Naan",
   category: "bread",
   tags: ["bread", "no-yeast"],
   servings: 7,
