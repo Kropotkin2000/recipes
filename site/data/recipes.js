@@ -18,15 +18,16 @@ const RECIPES = [
 // ---------------------------------------------------------------------
 {
   id: "curry-base",
-  title: "Curry Base (Approx. 1 Litre Yield)",
+  title: "Curry Base",
   category: "sauce",
   tags: ["curry", "gluten-free", "sauce-base"],
   servings: 8,
+  yieldPerServingMl: 125,
   prepTime: "25-35 min (incl. cashew soak)",
   cookTime: "45-55 min + cooling",
   notes: [
-    "Yields approx. 1 litre of base curry sauce, used in Madras Curry and other curries.",
-    "Servings estimated at ~125ml portions of finished base."
+    "Used as the base for Madras Curry and other curries.",
+    "Servings are ~125ml portions of finished base — the total yield shown below scales with the serving count."
   ],
   ingredients: [
     { name: "red onion", qty: 500, unit: "g", displayText: "500g (approx. 2-3 medium onions)", grams: 500 },
@@ -79,9 +80,10 @@ const RECIPES = [
   category: "condiment",
   tags: ["gluten-free", "seasoning"],
   servings: 1,
+  yieldPerServingMl: 80,
   prepTime: "5 min",
   cookTime: "0 min",
-  notes: [ "Yields approx. 1/3 cup (~80mL, ~43.6g total). Treat 'servings' as one batch." ],
+  notes: [ "'Servings' here means number of batches — the total yield shown below scales with it." ],
   ingredients: [
     { name: "nutritional yeast", qty: 26.7, unit: "g", displayText: "5 tbsp + 1 tsp (80mL), lightly packed", grams: 26.7 },
     { name: "garlic powder", qty: 3.0, unit: "g", displayText: "1 tsp", grams: 3.0 },

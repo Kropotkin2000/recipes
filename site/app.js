@@ -366,6 +366,14 @@
           '</div>' +
           '<span style="color:var(--text-muted);font-size:0.8rem;">(recipe default: ' + r.servings + ')</span>' +
         '</div>' +
+        (r.yieldPerServingMl ? (function () {
+          var totalMl = r.yieldPerServingMl * servings;
+          var isImperial = state.unit === "imperial";
+          var text = isImperial
+            ? round1(totalMl / 29.57) + " fl oz"
+            : (totalMl >= 1000 ? round1(totalMl / 1000) + "L" : roundInt(totalMl) + "ml");
+          return '<p style="color:var(--text-muted);font-size:0.85rem;margin:-0.5rem 0 0.5rem;">Approx. total yield: <strong>' + text + '</strong></p>';
+        })() : '') +
         (r.itemUnit ?
           (function () {
             var isImperial = state.unit === "imperial";
