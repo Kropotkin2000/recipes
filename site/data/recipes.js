@@ -714,9 +714,7 @@ const RECIPES = [
   servings: 5,
   prepTime: "20 min",
   cookTime: "1 hour",
-  notes: [
-    "Uses the larger, later 1.2kg potato-topping version (the earlier 600g version is a duplicate/superseded draft)."
-  ],
+  notes: [],
   ingredients: [
     { name: "firm tofu", qty: 450, unit: "g", displayText: "firm or extra-firm tofu, pressed, 450g", grams: 450 },
     { name: "soy sauce", qty: 3, unit: "tbsp", displayText: "soy sauce or tamari, 3 tbsp", grams: 45 },
