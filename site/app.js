@@ -15,6 +15,7 @@
     category: "all",
     tags: new Set(),
     unit: "metric",
+    macroView: "serving", // "serving" | "100g" | "total"
     servingOverrides: {}, // recipeId -> servings number
     sizeOverrides: {} // recipeId -> target item weight in grams (only for recipes with itemWeightG)
   };
@@ -40,6 +41,7 @@
     els.modal = document.getElementById("modal");
     els.unitToggleBtns = document.querySelectorAll("#unitToggle button");
     els.themeToggleBtns = document.querySelectorAll("#themeToggle button");
+    els.macroViewBtns = document.querySelectorAll("#macroViewToggle button");
 
     buildCategoryOptions();
     buildTagChips();
@@ -116,6 +118,14 @@
         els.themeToggleBtns.forEach(function (b) { b.classList.toggle("active", b === btn); });
       });
     });
+    els.macroViewBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        state.macroView = btn.getAttribute("data-macroview");
+        els.macroViewBtns.forEach(function (b) { b.classList.toggle("active", b === btn); });
+        render();
+        if (currentOpenId) openRecipe(currentOpenId);
+      });
+    });
     els.modalOverlay.addEventListener("click", function (e) {
       if (e.target === els.modalOverlay) closeModal();
     });
@@ -182,6 +192,34 @@
       totals.fat += info.fat * grams / 100;
     });
     return totals;
+  }
+
+  function computeTotalWeightG(recipe, servings, itemWeight) {
+    var multiplier = getMultiplier(recipe, servings, itemWeight);
+    var total = 0;
+    recipe.ingredients.forEach(function (ing) { total += (ing.grams || 0) * multiplier; });
+    return total;
+  }
+
+  // Returns the four macro values to display, according to state.macroView,
+  // plus the label to show under each figure ("kcal", "kcal / 100g", etc).
+  function getDisplayMacros(recipe, servings, itemWeight) {
+    var totals = computeMacros(recipe, servings, itemWeight);
+    if (state.macroView === "total") {
+      return { values: totals, suffix: "total" };
+    }
+    if (state.macroView === "100g") {
+      var totalWeight = computeTotalWeightG(recipe, servings, itemWeight);
+      var per100 = totalWeight > 0
+        ? { kcal: totals.kcal * 100 / totalWeight, protein: totals.protein * 100 / totalWeight, carbs: totals.carbs * 100 / totalWeight, fat: totals.fat * 100 / totalWeight }
+        : { kcal: 0, protein: 0, carbs: 0, fat: 0 };
+      return { values: per100, suffix: "/ 100g" };
+    }
+    // default: per serving
+    return {
+      values: { kcal: totals.kcal / servings, protein: totals.protein / servings, carbs: totals.carbs / servings, fat: totals.fat / servings },
+      suffix: "/ serving"
+    };
   }
 
   function round1(n) { return Math.round(n * 10) / 10; }
@@ -255,8 +293,7 @@
     list.forEach(function (r) {
       var servings = state.servingOverrides[r.id] || r.servings;
       var itemWeight = state.sizeOverrides[r.id] || r.itemWeightG;
-      var macros = computeMacros(r, servings, itemWeight);
-      var perServing = { kcal: macros.kcal / servings, protein: macros.protein / servings, carbs: macros.carbs / servings, fat: macros.fat / servings };
+      var display = getDisplayMacros(r, servings, itemWeight);
       var meta = CATEGORY_META[r.category] || { icon: "🍴", label: r.category, color: "var(--accent)" };
 
       var card = document.createElement("article");
@@ -278,10 +315,10 @@
           (r.itemUnit ? '<span>⚖ ' + (state.unit === "imperial" ? round1(itemWeight / 28.35) + "oz" : itemWeight + "g") + ' / ' + r.itemUnit + '</span>' : '') +
         '</div>' +
         '<div class="card-macros">' +
-          macroBox(roundInt(perServing.kcal), "kcal") +
-          macroBox(round1(perServing.protein) + "g", "protein") +
-          macroBox(round1(perServing.carbs) + "g", "carbs") +
-          macroBox(round1(perServing.fat) + "g", "fat") +
+          macroBox(roundInt(display.values.kcal), "kcal " + display.suffix) +
+          macroBox(round1(display.values.protein) + "g", "protein " + display.suffix) +
+          macroBox(round1(display.values.carbs) + "g", "carbs " + display.suffix) +
+          macroBox(round1(display.values.fat) + "g", "fat " + display.suffix) +
         '</div>' +
         '<div class="card-tags">' + (r.tags || []).map(function (t) { return '<span class="tag-pill">' + escapeHtml(t) + '</span>'; }).join("") + '</div>';
 
@@ -327,6 +364,10 @@
     var multiplier = getMultiplier(r, servings, itemWeight);
     var macros = computeMacros(r, servings, itemWeight);
     var perServing = { kcal: macros.kcal / servings, protein: macros.protein / servings, carbs: macros.carbs / servings, fat: macros.fat / servings };
+    var totalWeightG = computeTotalWeightG(r, servings, itemWeight);
+    var per100g = totalWeightG > 0
+      ? { kcal: macros.kcal * 100 / totalWeightG, protein: macros.protein * 100 / totalWeightG, carbs: macros.carbs * 100 / totalWeightG, fat: macros.fat * 100 / totalWeightG }
+      : { kcal: 0, protein: 0, carbs: 0, fat: 0 };
 
     var notesHtml = "";
     if (r.notes && r.notes.length) {
@@ -399,6 +440,12 @@
           macroCard(round1(perServing.protein) + "g", "protein / serving") +
           macroCard(round1(perServing.carbs) + "g", "carbs / serving") +
           macroCard(round1(perServing.fat) + "g", "fat / serving") +
+        '</div>' +
+        '<div class="macro-summary" style="opacity:0.8;">' +
+          macroCard(roundInt(per100g.kcal), "kcal / 100g") +
+          macroCard(round1(per100g.protein) + "g", "protein / 100g") +
+          macroCard(round1(per100g.carbs) + "g", "carbs / 100g") +
+          macroCard(round1(per100g.fat) + "g", "fat / 100g") +
         '</div>' +
         '<div class="macro-summary" style="opacity:0.8;">' +
           macroCard(roundInt(macros.kcal), "kcal total") +
