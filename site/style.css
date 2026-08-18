@@ -269,6 +269,14 @@ body {
   flex-wrap: wrap;
 }
 
+.card-macros-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0.3rem 0 0.15rem;
+}
+
 .card-macros {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

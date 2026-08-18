@@ -202,23 +202,23 @@
   }
 
   // Returns the four macro values to display, according to state.macroView,
-  // plus the label to show under each figure ("kcal", "kcal / 100g", etc).
+  // plus a single heading describing the whole row ("Per serving", "Per 100g", "Total").
   function getDisplayMacros(recipe, servings, itemWeight) {
     var totals = computeMacros(recipe, servings, itemWeight);
     if (state.macroView === "total") {
-      return { values: totals, suffix: "total" };
+      return { values: totals, heading: "Total" };
     }
     if (state.macroView === "100g") {
       var totalWeight = computeTotalWeightG(recipe, servings, itemWeight);
       var per100 = totalWeight > 0
         ? { kcal: totals.kcal * 100 / totalWeight, protein: totals.protein * 100 / totalWeight, carbs: totals.carbs * 100 / totalWeight, fat: totals.fat * 100 / totalWeight }
         : { kcal: 0, protein: 0, carbs: 0, fat: 0 };
-      return { values: per100, suffix: "/ 100g" };
+      return { values: per100, heading: "Per 100g" };
     }
     // default: per serving
     return {
       values: { kcal: totals.kcal / servings, protein: totals.protein / servings, carbs: totals.carbs / servings, fat: totals.fat / servings },
-      suffix: "/ serving"
+      heading: "Per serving"
     };
   }
 
@@ -314,11 +314,12 @@
           '<span>🍽 ' + servings + (r.itemUnit ? " " + r.itemUnit + (servings === 1 ? "" : "s") : (" serving" + (servings === 1 ? "" : "s"))) + '</span>' +
           (r.itemUnit ? '<span>⚖ ' + (state.unit === "imperial" ? round1(itemWeight / 28.35) + "oz" : itemWeight + "g") + ' / ' + r.itemUnit + '</span>' : '') +
         '</div>' +
+        '<p class="card-macros-label">' + escapeHtml(display.heading) + '</p>' +
         '<div class="card-macros">' +
-          macroBox(roundInt(display.values.kcal), "kcal " + display.suffix) +
-          macroBox(round1(display.values.protein) + "g", "protein " + display.suffix) +
-          macroBox(round1(display.values.carbs) + "g", "carbs " + display.suffix) +
-          macroBox(round1(display.values.fat) + "g", "fat " + display.suffix) +
+          macroBox(roundInt(display.values.kcal), "kcal") +
+          macroBox(round1(display.values.protein) + "g", "protein") +
+          macroBox(round1(display.values.carbs) + "g", "carbs") +
+          macroBox(round1(display.values.fat) + "g", "fat") +
         '</div>' +
         '<div class="card-tags">' + (r.tags || []).map(function (t) { return '<span class="tag-pill">' + escapeHtml(t) + '</span>'; }).join("") + '</div>';
 
