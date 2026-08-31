@@ -282,6 +282,33 @@
     return text;
   }
 
+  // Ingredients that share an `ing.group` (e.g. "The Dry Mix", "The Wet Phase")
+  // are rendered under their own subheading, mirroring how instructions are
+  // already broken into sections — so the ingredient list matches the way the
+  // recipe is actually built, instead of one flat undifferentiated list.
+  function renderIngredientGroups(r, multiplier) {
+    var hasGroups = r.ingredients.some(function (ing) { return !!ing.group; });
+    function itemsHtml(items) {
+      return '<ul class="ingredient-list">' + items.map(function (ing) {
+        var line = ingredientLine(ing, multiplier, state.unit);
+        return '<li><span class="ing-name">' + escapeHtml(ing.displayText ? shortName(ing) : ing.name) + '</span>' +
+          '<span class="ing-qty">' + escapeHtml(line) + '</span></li>';
+      }).join("") + '</ul>';
+    }
+    if (!hasGroups) return itemsHtml(r.ingredients);
+
+    var groups = []; // [{ name, items }], in first-seen order
+    var byName = {};
+    r.ingredients.forEach(function (ing) {
+      var g = ing.group || "Other";
+      if (!byName[g]) { byName[g] = { name: g, items: [] }; groups.push(byName[g]); }
+      byName[g].items.push(ing);
+    });
+    return groups.map(function (g) {
+      return '<div class="ingredient-group"><h4>' + escapeHtml(g.name) + '</h4>' + itemsHtml(g.items) + '</div>';
+    }).join("");
+  }
+
   // ---------- rendering: grid ----------
 
   function render() {
@@ -377,11 +404,7 @@
         '</ul></div>';
     }
 
-    var ingredientsHtml = r.ingredients.map(function (ing) {
-      var line = ingredientLine(ing, multiplier, state.unit);
-      return '<li><span class="ing-name">' + escapeHtml(ing.displayText ? shortName(ing) : ing.name) + '</span>' +
-        '<span class="ing-qty">' + escapeHtml(line) + '</span></li>';
-    }).join("");
+    var ingredientsHtml = renderIngredientGroups(r, multiplier);
 
     var instructionsHtml = r.instructions.map(function (block) {
       return '<div class="instructions-block">' +
@@ -455,7 +478,7 @@
           macroCard(round1(macros.fat) + "g", "fat total") +
         '</div>' +
         '<h3 class="section-title">Ingredients</h3>' +
-        '<ul class="ingredient-list">' + ingredientsHtml + '</ul>' +
+        ingredientsHtml +
         '<h3 class="section-title">Instructions</h3>' +
         instructionsHtml +
       '</div>';
