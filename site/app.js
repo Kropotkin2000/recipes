@@ -342,7 +342,7 @@
         '<div class="card-meta">' +
           '<span>⏱ ' + escapeHtml(r.prepTime || "") + '</span>' +
           '<span>🔥 ' + escapeHtml(r.cookTime || "") + '</span>' +
-          '<span>🍽 ' + servings + (r.itemUnit ? " " + r.itemUnit + (servings === 1 ? "" : "s") : (" serving" + (servings === 1 ? "" : "s"))) + '</span>' +
+          '<span>🍽 ' + servings + (r.itemUnit ? " " + (servings === 1 ? r.itemUnit : pluralUnit(r.itemUnit)) : (" serving" + (servings === 1 ? "" : "s"))) + '</span>' +
           (r.itemUnit ? '<span>⚖ ' + (state.unit === "imperial" ? round1(itemWeight / 28.35) + "oz" : round1(itemWeight) + "g") + ' / ' + r.itemUnit + '</span>' : '') +
         '</div>' +
         '<p class="card-macros-label">' + escapeHtml(display.heading) + '</p>' +
@@ -359,6 +359,11 @@
 
       els.grid.appendChild(card);
     });
+  }
+
+  // "patty" -> "patties"; other units just take an "s".
+  function pluralUnit(unit) {
+    return unit.replace(/([^aeiou])y$/, "$1ie") + "s";
   }
 
   function macroBox(value, label) {
@@ -427,7 +432,7 @@
       '<div class="modal-body">' +
         notesHtml +
         '<div class="serving-control">' +
-          '<label for="servingInput">' + (r.itemUnit ? ("Number of " + r.itemUnit + "s") : "Servings") + '</label>' +
+          '<label for="servingInput">' + (r.itemUnit ? ("Number of " + pluralUnit(r.itemUnit)) : "Servings") + '</label>' +
           '<div class="stepper">' +
             '<button id="servDown" type="button">−</button>' +
             '<input id="servingInput" type="number" min="1" step="1" value="' + servings + '">' +
