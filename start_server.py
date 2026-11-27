@@ -2,7 +2,7 @@
 """Serve the recipe site on your local network.
 
 Run this, then on any device on the same wifi open:
-    http://<this-computer's-LAN-IP>:8000
+    http://<this-computer's-LAN-IP>:8020
 
 The script prints the exact URL(s) to use when it starts.
 """

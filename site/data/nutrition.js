@@ -53,6 +53,7 @@ const NUTRITION = {
   "firm tofu":                  { kcal: 144, protein: 15,  carbs: 3,   fat: 8 },
   "flatbread":                  { kcal: 275, protein: 9,   carbs: 50,  fat: 4 },
   "fresh coriander":            { kcal: 23,  protein: 2.1, carbs: 3.7, fat: 0.5 },
+  "fresh parsley":              { kcal: 36,  protein: 3,   carbs: 6.3, fat: 0.8 },
   "fresh thyme":                { kcal: 101, protein: 5.6, carbs: 24,  fat: 1.7 },
   "frozen peas":                { kcal: 81,  protein: 5.4, carbs: 14,  fat: 0.4 },
   "garam masala":               { kcal: 330, protein: 14,  carbs: 50,  fat: 10 },

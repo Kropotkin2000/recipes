@@ -378,6 +378,64 @@ const RECIPES = [
 }
 ,// ---------------------------------------------------------------------
 {
+  id: "seitan-steaks",
+  title: "Seitan Steaks",
+  category: "protein",
+  tags: ["seitan", "high-protein"],
+  servings: 2,
+  itemUnit: "steak",
+  itemWeightG: 135,
+  prepTime: "15 min",
+  cookTime: "45 min steam + chill + 6-7 min fry",
+  notes: [
+    "The Methocel amount (2g per 2 steaks) is an experimental starting dose, not a verified optimum for your particular product.",
+    "Methocel preparation: E461 products vary in viscosity and gelation behaviour. Dry-mixing is convenient but may give uneven hydration. If the supplier's instructions permit, prepare a hydrated dispersion according to its specified method rather than assuming all E461 grades behave identically.",
+    "Juiciness: this formulation is a starting experiment, not a tested guarantee. The Methocel may improve moisture retention, while the tapioca may alter tenderness, but neither can guarantee a juicy result. If the steak becomes spongy, don't automatically add more water; first assess the dough's hydration and the texture after steaming."
+  ],
+  ingredients: [
+    { group: "Seitan Dough", name: "vital wheat gluten", qty: 120, unit: "g", displayText: "120g", grams: 120 },
+    { group: "Seitan Dough", name: "tapioca starch", qty: 6, unit: "g", displayText: "6g", grams: 6 },
+    { group: "Seitan Dough", name: "methylcellulose", label: "Methocel E461", qty: 2, unit: "g", displayText: "2g, experimental starting dose", grams: 2 },
+    { group: "Seitan Dough", name: "nutritional yeast", qty: 10, unit: "g", displayText: "10g", grams: 10 },
+    { group: "Seitan Dough", name: "soy sauce", qty: 15, unit: "ml", displayText: "15ml", grams: 15 },
+    { group: "Seitan Dough", name: "worcestershire sauce", label: "Vegan Worcestershire Sauce", qty: 15, unit: "ml", displayText: "15ml", grams: 15 },
+    { group: "Seitan Dough", name: "red wine", qty: 30, unit: "ml", displayText: "30ml", grams: 30 },
+    { group: "Seitan Dough", name: "olive oil", qty: 15, unit: "ml", displayText: "15ml", grams: 14 },
+    { group: "Seitan Dough", name: "water", label: "Water (to start)", qty: 45, unit: "ml", displayText: "45ml to start", grams: 45 },
+    { group: "Seitan Dough", name: "garlic granules", qty: 1, unit: "tsp", displayText: "1 tsp", grams: 3 },
+    { group: "Seitan Dough", name: "onion granules", qty: 1, unit: "tsp", displayText: "1 tsp", grams: 3 },
+    { group: "Seitan Dough", name: "dried thyme", qty: 2, unit: "tsp", displayText: "2 tsp", grams: 2 },
+    { group: "Seitan Dough", name: "black pepper", qty: 1, unit: "tsp", displayText: "1 tsp", grams: 2.5 },
+    { group: "Seitan Dough", name: "salt", qty: 0, unit: "to taste", displayText: "to taste", grams: 0 },
+    { group: "Seitan Dough", name: "red food colouring", qty: 0, unit: "to taste", displayText: "optional", grams: 0 },
+    { group: "For Frying", name: "olive oil", qty: 1, unit: "tbsp", displayText: "1 tbsp", grams: 14 },
+    { group: "For Frying", name: "vegan butter", qty: 10, unit: "g", displayText: "10g", grams: 10 },
+    { group: "For Frying", name: "garlic", label: "Garlic, crushed", qty: 1, unit: "clove", displayText: "", grams: 3 },
+    { group: "For Frying", name: "fresh thyme", label: "Thyme Leaves", qty: 0.5, unit: "tsp", displayText: "1/2 tsp", grams: 0.5 },
+    { group: "For Frying", name: "salt", label: "Salt & Black Pepper", qty: 0, unit: "to taste", displayText: "to taste", grams: 0 }
+  ],
+  instructions: [
+    { section: "1. Combine the Dry Ingredients", steps: [ "Whisk the vital wheat gluten, tapioca starch, Methocel, nutritional yeast, garlic granules, onion granules, thyme and black pepper thoroughly. Disperse the Methocel as evenly as possible to minimise clumping." ]},
+    { section: "2. Make the Dough", steps: [
+      "Mix the soy sauce, Worcestershire sauce, red wine, olive oil and 45ml water (per 2 steaks). Add to the dry ingredients and mix until a cohesive dough forms.",
+      "Knead for around 3 minutes, then assess the texture. Add water in small increments only if necessary. Aim for a firm, pliable dough rather than a wet, soft one."
+    ]},
+    { section: "3. Shape and Wrap", steps: [
+      "Flatten the dough and fold it in the same direction four or five times to create a grain. Divide into steaks around 1.5-2cm thick.",
+      "Wrap each steak snugly in aluminium foil, leaving a little room for expansion."
+    ]},
+    { section: "4. Steam", steps: [
+      "Steam in a covered pot for approximately 45 minutes, keeping the water at a steady simmer. Let the steaks cool before unwrapping.",
+      "Refrigerate overnight if possible; this helps the texture firm up before frying."
+    ]},
+    { section: "5. Sear and Baste", steps: [
+      "Pat the steaks dry and season both sides with salt and pepper. Sear in olive oil over medium-high heat for 2-3 minutes per side.",
+      "Lower the heat, add the vegan butter, garlic and thyme, and baste for about a minute. Avoid burning the garlic."
+    ]}
+  ]
+}
+,// ---------------------------------------------------------------------
+{
   id: "gastropub-vegan-sausage-meat",
   title: "Gastropub Vegan Pork-Style Sausage Meat",
   category: "protein",
@@ -588,7 +646,7 @@ const RECIPES = [
     { group: "The Cauliflower", name: "salt", qty: 0, unit: "to taste", displayText: "to taste", grams: 0 },
     { group: "The Cauliflower", name: "black pepper", qty: 0, unit: "to taste", displayText: "to taste", grams: 0 },
     { group: "The Cauliflower", name: "cauliflower leaves and stems", qty: 100, unit: "g", displayText: "reserved, finely chopped", grams: 100 },
-    { group: "The Chimichurri", name: "fresh coriander", qty: 30, unit: "g", displayText: "flat-leaf parsley, 1 large bunch, finely chopped", grams: 30 },
+    { group: "The Chimichurri", name: "fresh parsley", qty: 30, unit: "g", displayText: "flat-leaf parsley, 1 large bunch, finely chopped", grams: 30 },
     { group: "The Chimichurri", name: "garlic", qty: 1, unit: "clove", displayText: "1 clove, minced (chimichurri)", grams: 3 },
     { group: "The Chimichurri", name: "red chili", qty: 1, unit: "count", displayText: "1, finely diced, de-seeded for less heat", grams: 15 },
     { group: "The Chimichurri", name: "red wine vinegar", qty: 2, unit: "tbsp", displayText: "2 tbsp", grams: 30 },
@@ -635,7 +693,7 @@ const RECIPES = [
     { group: "Stew", name: "bay leaf", qty: 2, unit: "count", displayText: "2 bay leaves", grams: 0.4 },
     { group: "Stew", name: "lentils (dried)", qty: 250, unit: "g", displayText: "French green lentils, rinsed", grams: 250 },
     { group: "Stew", name: "olive oil", qty: 2, unit: "tbsp", displayText: "for cooking", grams: 27 },
-    { group: "Stew", name: "fresh coriander", qty: 10, unit: "g", displayText: "fresh parsley, chopped", grams: 10 },
+    { group: "Stew", name: "fresh parsley", qty: 10, unit: "g", displayText: "fresh parsley, chopped", grams: 10 },
     { group: "Stew", name: "salt", qty: 0, unit: "to taste", displayText: "salt & black pepper, to taste", grams: 0 },
     { group: "Spice Paste", name: "coriander seeds", qty: 1, unit: "tbsp", displayText: "1 tbsp", grams: 7 },
     { group: "Spice Paste", name: "fennel seeds", qty: 1, unit: "tbsp", displayText: "1 tbsp", grams: 7 },

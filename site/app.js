@@ -107,6 +107,7 @@
       btn.addEventListener("click", function () {
         state.unit = btn.getAttribute("data-unit");
         els.unitToggleBtns.forEach(function (b) { b.classList.toggle("active", b === btn); });
+        render();
         // re-render modal if open
         if (currentOpenId) openRecipe(currentOpenId);
       });
@@ -171,7 +172,7 @@
     }
     if (state.search) {
       var haystack = r.title.toLowerCase() + " " + (r.tags || []).join(" ").toLowerCase() +
-        " " + r.ingredients.map(function (i) { return i.name; }).join(" ").toLowerCase();
+        " " + r.ingredients.map(function (i) { return i.name + " " + (i.label || ""); }).join(" ").toLowerCase();
       if (haystack.indexOf(state.search) === -1) return false;
     }
     return true;
@@ -248,7 +249,7 @@
       else if (unit === "cup") { qty = qty * 240; unit = "ml"; }
       // g / ml stay as-is
     } else { // imperial
-      if (unit === "g") { qty = qty / 28.35; unit = "oz"; }
+      if (unit === "g" && qty >= 10) { qty = qty / 28.35; unit = "oz"; }
       else if (unit === "ml") {
         if (qty >= 240) { qty = qty / 240; unit = "cup"; }
         else if (qty >= 15) { qty = qty / 15; unit = "tbsp"; }
@@ -266,20 +267,23 @@
     if (ing.unit === "pinch") {
       var pn = Math.round(ing.qty * multiplier * 10) / 10;
       return (pn === 1 ? "1 pinch" : formatQty(pn) + " pinches") +
-        (ing.displayText ? " (" + stripLeadingQty(ing.displayText) + ")" : "");
+        noteSuffix(ing, multiplier);
     }
     if (ing.unit === "count" || ing.unit === "clove") {
       var cn = ing.qty * multiplier;
       var label = ing.unit === "clove" ? (cn === 1 ? "clove" : "cloves") : "";
       return formatQty(cn) + (label ? " " + label : "") +
-        (ing.displayText ? " (" + stripLeadingQty(ing.displayText) + ")" : "");
+        noteSuffix(ing, multiplier);
     }
     var conv = convertForDisplay(ing, multiplier, unitMode);
     return formatQty(conv.qty) + " " + conv.unit;
   }
 
-  function stripLeadingQty(text) {
-    return text;
+  // displayText describes the unscaled recipe, so say so once quantities change.
+  function noteSuffix(ing, multiplier) {
+    if (!ing.displayText) return "";
+    var scaled = Math.abs(multiplier - 1) > 0.001;
+    return " (" + (scaled ? "base recipe: " : "") + ing.displayText + ")";
   }
 
   // Ingredients that share an `ing.group` (e.g. "The Dry Mix", "The Wet Phase")
@@ -291,7 +295,7 @@
     function itemsHtml(items) {
       return '<ul class="ingredient-list">' + items.map(function (ing) {
         var line = ingredientLine(ing, multiplier, state.unit);
-        return '<li><span class="ing-name">' + escapeHtml(ing.displayText ? shortName(ing) : ing.name) + '</span>' +
+        return '<li><span class="ing-name">' + escapeHtml(shortName(ing)) + '</span>' +
           '<span class="ing-qty">' + escapeHtml(line) + '</span></li>';
       }).join("") + '</ul>';
     }
@@ -339,7 +343,7 @@
           '<span>⏱ ' + escapeHtml(r.prepTime || "") + '</span>' +
           '<span>🔥 ' + escapeHtml(r.cookTime || "") + '</span>' +
           '<span>🍽 ' + servings + (r.itemUnit ? " " + r.itemUnit + (servings === 1 ? "" : "s") : (" serving" + (servings === 1 ? "" : "s"))) + '</span>' +
-          (r.itemUnit ? '<span>⚖ ' + (state.unit === "imperial" ? round1(itemWeight / 28.35) + "oz" : itemWeight + "g") + ' / ' + r.itemUnit + '</span>' : '') +
+          (r.itemUnit ? '<span>⚖ ' + (state.unit === "imperial" ? round1(itemWeight / 28.35) + "oz" : round1(itemWeight) + "g") + ' / ' + r.itemUnit + '</span>' : '') +
         '</div>' +
         '<p class="card-macros-label">' + escapeHtml(display.heading) + '</p>' +
         '<div class="card-macros">' +
@@ -443,7 +447,7 @@
           (function () {
             var isImperial = state.unit === "imperial";
             var sizeUnitLabel = isImperial ? "oz" : "g";
-            var displayVal = isImperial ? round1(itemWeight / 28.35) : itemWeight;
+            var displayVal = isImperial ? round1(itemWeight / 28.35) : round1(itemWeight);
             var defaultVal = isImperial ? round1(r.itemWeightG / 28.35) : r.itemWeightG;
             var stepVal = isImperial ? 0.5 : 5;
             return (
@@ -525,6 +529,7 @@
 
   function shortName(ing) {
     // Show the canonical ingredient name, capitalized nicely
+    if (ing.label) return ing.label;
     return ing.name.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
   }
 
