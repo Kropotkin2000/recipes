@@ -84,20 +84,24 @@ button { font: inherit; }
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  filter: blur(70px);
   opacity: var(--blob-opacity);
 }
+/* Soft edges come from the gradient itself rather than a blur filter, so the
+   drift is a pure transform the GPU can move without repainting. */
 .bg-blobs span {
+  --b: #ff4f7b;
   position: absolute;
-  width: 46vmax;
-  height: 46vmax;
+  width: 60vmax;
+  height: 60vmax;
   border-radius: 50%;
+  background: radial-gradient(circle closest-side, var(--b) 0%, color-mix(in srgb, var(--b) 55%, transparent) 40%, transparent 100%);
+  will-change: transform;
   animation: drift 26s ease-in-out infinite alternate;
 }
-.bg-blobs span:nth-child(1) { background: #ff4f7b; top: -18vmax; left: -12vmax; }
-.bg-blobs span:nth-child(2) { background: #ffb703; top: 10vh; right: -18vmax; animation-duration: 32s; animation-delay: -8s; }
-.bg-blobs span:nth-child(3) { background: #2ec4b6; bottom: -22vmax; left: 20vw; animation-duration: 38s; animation-delay: -15s; }
-.bg-blobs span:nth-child(4) { background: #8e5cff; bottom: 5vh; right: 10vw; width: 30vmax; height: 30vmax; animation-duration: 29s; animation-delay: -4s; }
+.bg-blobs span:nth-child(1) { --b: #ff4f7b; top: -25vmax; left: -19vmax; }
+.bg-blobs span:nth-child(2) { --b: #ffb703; top: calc(10vh - 7vmax); right: -25vmax; animation-duration: 32s; animation-delay: -8s; }
+.bg-blobs span:nth-child(3) { --b: #2ec4b6; bottom: -29vmax; left: calc(20vw - 7vmax); animation-duration: 38s; animation-delay: -15s; }
+.bg-blobs span:nth-child(4) { --b: #8e5cff; bottom: calc(5vh - 7vmax); right: calc(10vw - 7vmax); width: 44vmax; height: 44vmax; animation-duration: 29s; animation-delay: -4s; }
 @keyframes drift {
   0%   { transform: translate(0, 0) scale(1); }
   33%  { transform: translate(8vw, 6vh) scale(1.12); }
@@ -941,6 +945,26 @@ h3.section-title small { font-size: 0.75rem; font-weight: 600; color: var(--text
   .header-controls { gap: 0.45rem; }
   .unit-toggle button, .theme-toggle button { padding: 0.38rem 0.7rem; font-size: 0.8rem; }
   .surprise-btn { flex: 1 1 auto; }
+}
+
+/* Phones and tablets: frosted-glass blur, 3D card layers and the animated
+   title gradient are expensive to repaint on mobile GPUs, so swap them for
+   flat equivalents. The drifting blobs and entrance animations stay. */
+@media (hover: none), (pointer: coarse), (max-width: 620px) {
+  :root { --bg-elevated: rgba(255, 255, 255, 0.9); --chip-bg: rgba(255, 255, 255, 0.85); }
+  :root[data-theme="dark"] { --bg-elevated: rgba(34, 24, 54, 0.92); --chip-bg: rgba(255, 255, 255, 0.1); }
+  *, *::before, *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  .modal-overlay { background: rgba(20, 10, 35, 0.72); }
+  .recipe-card { transform: none; transform-style: flat; transition: none; }
+  .recipe-card::after { display: none; }
+  .card-banner .big-emoji { transform: rotate(-10deg); filter: none; text-shadow: 0 8px 12px rgba(0,0,0,0.2); }
+  .card-banner::before { mask-image: none; -webkit-mask-image: none; opacity: 0.5; }
+  .floaties span { filter: none; }
+  .app-header h1 { animation: none; background-size: 100% 100%; }
+  .modal-hero .big-emoji { filter: none; }
+}
+@media (prefers-color-scheme: dark) and ((hover: none) or (pointer: coarse) or (max-width: 620px)) {
+  :root:not([data-theme="light"]) { --bg-elevated: rgba(34, 24, 54, 0.92); --chip-bg: rgba(255, 255, 255, 0.1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
